@@ -1,5 +1,7 @@
 ksql> set 'auto.offset.reset'='earliest';
 
+ksql> create stream incoming_discountedes (item_id varchar, original_price integer, discounted_price integer) with (kafka_topic='discounted', value_format='avro');
+
 ksql> create or replace stream discount_size
 >with (kafka_topic = 'discount_size', value_format = 'avro') as
 >select item_id, (((original_price - discounted_price) * 100) / original_price) as discount_percent
@@ -12,13 +14,3 @@ ksql> create or replace stream heavily_discounted_items
 >from discount_size
 >where discount_percent >= 30
 >partition by item_id;
-
-ksql> show streams;
-
- Stream Name              | Kafka Topic               | Key Format | Value Format | Windowed
----------------------------------------------------------------------------------------------
- DISCOUNT_SIZE            | discount_size             | KAFKA      | AVRO         | false
- HEAVILY_DISCOUNTED_ITEMS | heavily_discounted_items  | KAFKA      | AVRO         | false
- INCOMING_DISCOUNTEDES    | discounted                | KAFKA      | AVRO         | false
- KSQL_PROCESSING_LOG      | slurm_ksql_processing_log | KAFKA      | JSON         | false
----------------------------------------------------------------------------------------------
